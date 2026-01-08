@@ -5,60 +5,120 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>7K Rebirth Coupon Tool</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-900 text-white min-h-screen flex items-center justify-center p-4">
-    <div class="max-w-md w-full bg-gray-800 rounded-2xl shadow-xl p-6 border border-gray-700">
-        <h1 class="text-2xl font-bold text-yellow-500 text-center mb-6">7K Rebirth Coupon</h1>
-        
-        <div class="space-y-4">
-            <div>
-                <label class="block text-sm text-gray-400 mb-1">Player ID (PID)</label>
-                <input type="text" id="pid" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-yellow-500 outline-none" placeholder="ใส่ PID ของคุณ">
+<body class="bg-[#fdf6f3] text-gray-700 min-h-screen p-4 font-sans">
+    <div class="max-w-2xl mx-auto space-y-6">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+            <div class="flex items-center mb-6">
+                <i class="fa-regular fa-user text-2xl mr-3 text-gray-400"></i>
+                <div>
+                    <h2 class="font-bold text-lg">ข้อมูลผู้เล่น</h2>
+                    <p class="text-sm text-gray-400">กรุณากรอกข้อมูลของคุณเพื่อแลกคูปอง</p>
+                </div>
             </div>
-            <div>
-                <label class="block text-sm text-gray-400 mb-1">รายการโค้ด (บรรทัดละ 1 โค้ด)</label>
-                <textarea id="codes" rows="5" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-yellow-500 outline-none" placeholder="ใส่โค้ดที่นี่..."></textarea>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-2">UID</label>
+                    <input type="text" id="pid" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-200 transition-all" placeholder="ใส่ Player ID">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-2">รายการโค้ด (แยกด้วยการขึ้นบรรทัดใหม่)</label>
+                    <textarea id="codes" rows="5" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-200 transition-all font-mono" placeholder="ใส่โค้ดที่นี่..."></textarea>
+                </div>
+
+                <div id="progressContainer" class="hidden">
+                    <div class="flex justify-between text-xs font-bold mb-2 text-orange-500">
+                        <span id="progressText"><i class="fa-solid fa-spinner animate-spin mr-2"></i>กำลังแลก... 0%</span>
+                    </div>
+                    <div class="w-full bg-gray-100 rounded-full h-8 flex items-center p-1 border border-gray-200">
+                        <div id="progressBar" class="bg-green-300 h-6 rounded-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <button onclick="runRedeem()" id="btn" class="w-full bg-orange-200 hover:bg-orange-300 text-orange-700 font-bold py-3 rounded-xl transition-all shadow-sm">
+                    เริ่มแลกคูปอง
+                </button>
             </div>
-            <button onclick="runRedeem()" id="btn" class="w-full bg-yellow-600 hover:bg-yellow-500 text-white font-bold py-3 rounded-lg transition-all">เริ่มเติมโค้ด</button>
         </div>
 
-        <div id="results" class="mt-6 space-y-2 max-h-60 overflow-y-auto"></div>
+        <div id="resultCard" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 hidden">
+            <h2 class="font-bold text-lg mb-2">ผลการแลกคูปอง</h2>
+            <p id="summary" class="text-sm text-gray-500 mb-6">โค้ดทั้งหมด: 0 | สำเร็จ: 0 | ไม่สำเร็จ: 0</p>
+            
+            <div id="resultsList" class="space-y-3"></div>
+        </div>
     </div>
 
     <script>
         async function runRedeem() {
-            const pid = document.getElementById('pid').value;
+            const pid = document.getElementById('pid').value.trim();
             const codes = document.getElementById('codes').value.split('\n').filter(c => c.trim() !== "");
             const btn = document.getElementById('btn');
-            const resDiv = document.getElementById('results');
+            const progressContainer = document.getElementById('progressContainer');
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            const resultCard = document.getElementById('resultCard');
+            const resultsList = document.getElementById('resultsList');
+            const summary = document.getElementById('summary');
 
             if (!pid || codes.length === 0) return alert("กรุณากรอกข้อมูลให้ครบ");
 
-            btn.disabled = true;
-            btn.innerText = "กำลังประมวลผล...";
-            resDiv.innerHTML = "";
+            btn.classList.add('hidden');
+            progressContainer.classList.remove('hidden');
+            resultCard.classList.remove('hidden');
+            resultsList.innerHTML = "";
+            
+            let success = 0;
+            let failed = 0;
 
-            try {
-                const response = await fetch('/api/redeem', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ pid, codes })
-                });
-                const data = await response.json();
+            for (let i = 0; i < codes.length; i++) {
+                const code = codes[i].trim();
+                const percent = Math.round(((i + 1) / codes.length) * 100);
                 
-                data.forEach(item => {
-                    const div = document.createElement('div');
-                    div.className = "flex justify-between p-2 bg-gray-700 rounded text-sm border-l-4 " + 
-                                    (item.status.includes('สำเร็จ') ? 'border-green-500' : 'border-red-500');
-                    div.innerHTML = `<span>${item.code}</span><span class="text-gray-300">${item.status}</span>`;
-                    resDiv.appendChild(div);
-                });
-            } catch (e) {
-                alert("เกิดข้อผิดพลาดในการเชื่อมต่อ");
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "เริ่มเติมโค้ด";
+                // อัปเดต Progress
+                progressBar.style.width = percent + "%";
+                progressText.innerHTML = `<i class="fa-solid fa-spinner animate-spin mr-2"></i>กำลังแลก... ${percent}%`;
+
+                // สร้างแถวผลลัพธ์ (Loading)
+                const row = document.createElement('div');
+                row.className = "p-4 bg-gray-50 border border-gray-100 rounded-2xl flex justify-between items-center transition-all";
+                row.innerHTML = `<div><p class="text-xs font-bold text-gray-400 uppercase">${code}</p><p class="text-sm text-gray-600 mt-1">กำลังดำเนินการ...</p></div>`;
+                resultsList.prepend(row);
+
+                try {
+                    const response = await fetch('/api/redeem', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ pid, code })
+                    });
+                    const data = await response.json();
+                    
+                    const isSuccess = data.resultCode === "SUCCESS";
+                    if (isSuccess) success++; else failed++;
+
+                    row.innerHTML = `
+                        <div>
+                            <p class="text-xs font-bold text-gray-400 uppercase">${code}</p>
+                            <p class="text-sm text-gray-600 mt-1">${data.resultMsg}</p>
+                        </div>
+                        <span class="${isSuccess ? 'bg-green-500' : 'bg-yellow-500'} text-white text-[10px] px-3 py-1 rounded-lg font-bold">
+                            ${isSuccess ? 'สำเร็จ' : 'ใช้แล้ว'}
+                        </span>
+                    `;
+                } catch (e) {
+                    failed++;
+                    row.innerHTML = `<div><p class="text-xs font-bold text-gray-400 uppercase">${code}</p><p class="text-sm text-red-500 mt-1">Error</p></div>`;
+                }
+
+                summary.innerText = `โค้ดทั้งหมด: ${codes.length} | สำเร็จ: ${success} | ไม่สำเร็จ: ${failed}`;
+                await new Promise(r => setTimeout(r, 500)); // หน่วงเวลาเล็กน้อยเพื่อให้ดูเป็นธรรมชาติ
             }
+
+            progressText.innerHTML = `<i class="fa-solid fa-check-circle mr-2 text-green-500"></i>ดำเนินการเสร็จสิ้น!`;
+            btn.classList.remove('hidden');
+            btn.innerText = "แลกเสร็จแล้ว (ทำรายการใหม่)";
         }
     </script>
 </body>
