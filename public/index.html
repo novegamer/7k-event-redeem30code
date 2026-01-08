@@ -3,88 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>7K Rebirth - Auto Tool</title>
+    <title>7K Rebirth Auto - by Junqko Community</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #0b0f1a; font-family: 'Kanit', sans-serif; }
-        .dark-card { background: #161b2a; border: 1px solid #2d3748; }
+        body { font-family: 'Kanit', sans-serif; background-color: #f3f4f6; color: #1f2937; }
+        .white-card { background: white; border-radius: 2rem; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); }
         .custom-scrollbar::-webkit-scrollbar { width: 5px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #4a5568; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
     </style>
 </head>
-<body class="text-slate-300 min-h-screen flex flex-col items-center justify-center p-4">
+<body class="min-h-screen flex flex-col items-center justify-center p-6">
 
-    <div class="max-w-md w-full space-y-4">
-        <div class="dark-card rounded-3xl p-10 shadow-2xl text-center border-t-4 border-orange-500">
-            <h1 class="text-3xl font-black text-orange-500 mb-2 uppercase italic">7K AUTO TOOL</h1>
-            <p class="text-slate-500 text-[10px] mb-8 font-bold uppercase tracking-widest">ใส่ PID เพื่อรับรางวัลทั้งหมด</p>
+    <div class="max-w-md w-full space-y-6">
+        <div class="white-card p-10 text-center border border-slate-100">
+            <h1 class="text-3xl font-bold text-slate-800 mb-2 uppercase tracking-tighter">7K AUTO TOOL</h1>
+            <p class="text-slate-400 text-[10px] mb-8 font-bold uppercase tracking-widest">ระบบเติมโค้มอัตโนมัติ 20 โค้ด</p>
             
-            <div class="space-y-6 text-left">
-                <input type="text" id="pid" class="w-full bg-[#0b0f1a] border border-slate-700 rounded-2xl px-6 py-4 outline-none focus:ring-2 focus:ring-orange-500 font-bold" placeholder="ระบุ PID ของคุณ">
+            <div class="space-y-5 text-left">
+                <div>
+                    <label class="text-[11px] font-bold text-slate-500 uppercase ml-1 block mb-2">Player ID (PID)</label>
+                    <input type="text" id="pid" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 outline-none focus:ring-2 focus:ring-red-500 transition-all font-bold text-slate-700" placeholder="วาง PID ของคุณที่นี่">
+                </div>
 
-                <div id="userInfo" class="hidden p-4 bg-slate-800/50 rounded-2xl border border-slate-700 text-center">
-                    <p class="text-emerald-400 font-bold text-lg" id="charName"></p>
+                <div id="userInfo" class="hidden p-4 bg-red-50 rounded-2xl border border-red-100 text-center">
+                    <p class="text-[10px] text-red-400 uppercase font-bold">พบบัญชีผู้เล่น</p>
+                    <p id="charName" class="text-red-600 font-bold text-lg"></p>
                 </div>
 
                 <div id="progressArea" class="hidden space-y-2">
-                    <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
-                        <div id="pBar" class="bg-orange-500 h-full transition-all duration-500" style="width: 0%"></div>
+                    <div class="flex justify-between text-[10px] text-slate-500 font-bold uppercase">
+                        <span id="pStatus">กำลังดำเนินการ...</span>
+                        <span id="pPercent">0%</span>
                     </div>
-                    <p id="pStatus" class="text-[10px] text-center text-orange-400 uppercase font-bold"></p>
+                    <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                        <div id="pBar" class="bg-red-600 h-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
                 </div>
 
-                <button onclick="runProcess()" id="btn" class="w-full bg-orange-600 hover:bg-orange-500 text-white font-black py-5 rounded-2xl shadow-lg transition-all active:scale-95 text-lg">
-                    เริ่มทำงาน
+                <button onclick="startJunqkoProcess()" id="btn" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-5 rounded-2xl shadow-lg shadow-red-200 transition-all active:scale-95 text-lg">
+                    รับของรางวัลทั้งหมด
                 </button>
             </div>
+
+            <p class="mt-8 text-[11px] font-bold text-slate-300 uppercase tracking-widest">
+                by <span class="text-red-400">Junqko Community</span>
+            </p>
         </div>
 
-        <div id="resCard" class="dark-card rounded-3xl p-6 hidden">
-            <div id="resList" class="space-y-2 max-h-[300px] overflow-y-auto custom-scrollbar"></div>
+        <div id="resCard" class="white-card p-6 hidden w-full border border-slate-100">
+            <div id="resList" class="space-y-3 max-h-[300px] overflow-y-auto custom-scrollbar pr-2"></div>
         </div>
     </div>
 
     <script>
         const wait = ms => new Promise(r => setTimeout(r, ms));
 
-        async function runProcess() {
+        async function startJunqkoProcess() {
             const pid = document.getElementById('pid').value.trim();
-            if(!pid) return alert("กรุณาใส่ PID");
+            if(!pid) return alert("กรุณาระบุ PID ก่อนครับ");
 
             const btn = document.getElementById('btn');
+            const resList = document.getElementById('resList');
+            const pBar = document.getElementById('pBar');
+
             btn.disabled = true;
-            btn.innerText = "กำลังตรวจสอบบัญชี...";
+            btn.innerText = "กำลังตรวจสอบ PID...";
 
             try {
-                // Step 1: Submit (Inquiry)
-                const check = await fetch('/api/check-user', {
+                // Step 1: Submit (Check User)
+                const checkRes = await fetch('/api/check-user', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ pid })
                 });
-                const userData = await check.json();
+                
+                // แก้ปัญหา line 1 column 1 โดยการเช็ค Response ก่อน parse JSON
+                if (!checkRes.ok) throw new Error("เซิร์ฟเวอร์ขัดข้อง (500)");
+                const userData = await checkRes.json();
 
                 if (userData.errorCode !== 200) {
-                    alert("ไม่พบบัญชี: " + (userData.errorMessage || "PID ไม่ถูกต้อง"));
+                    alert("แจ้งเตือน: " + (userData.errorMessage || "ไม่พบบัญชีผู้เล่น"));
                     btn.disabled = false;
-                    btn.innerText = "เริ่มทำงาน";
+                    btn.innerText = "รับของรางวัลทั้งหมด";
                     return;
                 }
 
                 document.getElementById('userInfo').classList.remove('hidden');
-                document.getElementById('charName').innerText = `ผู้เล่น: ${userData.resultData.nickname}`;
+                document.getElementById('charName').innerText = userData.resultData.nickname;
 
-                // Step 2: Confirm (Redeem)
+                // Step 2: Redeem Loop
+                btn.innerText = "กำลังแลกรางวัล...";
                 const { codes } = await (await fetch('/api/get-codes')).json();
+                
                 document.getElementById('resCard').classList.remove('hidden');
                 document.getElementById('progressArea').classList.remove('hidden');
+                resList.innerHTML = "";
 
                 for (let i = 0; i < codes.length; i++) {
                     const code = codes[i];
-                    document.getElementById('pBar').style.width = Math.round(((i + 1) / codes.length) * 100) + "%";
+                    const p = Math.round(((i + 1) / codes.length) * 100);
+                    
+                    pBar.style.width = p + "%";
+                    document.getElementById('pPercent').innerText = p + "%";
                     document.getElementById('pStatus').innerText = `กำลังแลก: ${code}`;
 
-                    if (i > 0) await wait(2000); // หน่วงเวลา 2 วินาที
+                    // หน่วงเวลา 2 วินาที เพื่อเลี่ยงการโดนบล็อก
+                    if (i > 0) await wait(2000);
 
                     const res = await fetch('/api/redeem', {
                         method: 'POST',
@@ -93,20 +118,28 @@
                     });
                     const data = await res.json();
                     
-                    const isOk = data.errorMessage === "SUCCESS" || data.success === true || data.errorMessage === "아이템이 지급되었습니다.";
+                    // เช็คเงื่อนไขความสำเร็จทั้ง Official และทั่วไป
+                    const isOk = data.errorMessage === "SUCCESS" || data.errorMessage === "아이템이 지급되었습니다." || data.success === true;
                     const isUsed = data.errorCode === 24004;
 
                     const row = document.createElement('div');
-                    row.className = `flex justify-between p-3 bg-[#0b0f1a] rounded-xl border-l-4 ${isOk ? 'border-emerald-500' : 'border-orange-500'}`;
-                    let statusTxt = isOk ? `สำเร็จ: ${data.resultData?.[0]?.productName || 'ไอเทมกิจกรรม'}` : (isUsed ? "ใช้งานแล้ว" : data.errorMessage);
+                    row.className = `flex justify-between p-4 bg-slate-50 rounded-2xl border-l-4 ${isOk ? 'border-l-green-500' : 'border-l-red-500'}`;
                     
-                    row.innerHTML = `<span class="text-xs font-mono font-bold">${code}</span><span class="text-[9px] font-black uppercase ${isOk ? 'text-emerald-400' : 'text-orange-500'}">${statusTxt}</span>`;
-                    document.getElementById('resList').prepend(row);
+                    let rewardName = (isOk && data.resultData && data.resultData[0].productName) ? data.resultData[0].productName : (isOk ? "รับรางวัลสำเร็จ" : (isUsed ? "ใช้งานไปแล้ว" : data.errorMessage));
+                    let colorClass = isOk ? "text-green-600" : "text-red-600";
+
+                    row.innerHTML = `
+                        <span class="text-xs font-mono font-bold text-slate-500">${code}</span>
+                        <span class="text-[10px] font-black uppercase ${colorClass} text-right ml-4">${rewardName}</span>
+                    `;
+                    resList.prepend(row);
                 }
-                btn.innerText = "เสร็จสมบูรณ์";
+                btn.innerText = "สำเร็จทั้งหมดแล้ว";
+                document.getElementById('pStatus').innerText = "DONE!";
             } catch (e) {
-                alert("เกิดข้อผิดพลาด");
+                alert("เกิดข้อผิดพลาด: " + e.message);
                 btn.disabled = false;
+                btn.innerText = "ลองใหม่อีกครั้ง";
             }
         }
     </script>
