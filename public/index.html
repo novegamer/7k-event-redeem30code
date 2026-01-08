@@ -3,70 +3,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>7K Rebirth Coupon Tool</title>
+    <title>7K Rebirth Coupon Tool - Dark Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap');
+        body { font-family: 'Kanit', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #1e293b; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
+        @keyframes pulse-gold {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .animate-pulse-gold { animation: pulse-gold 2s infinite; }
+    </style>
 </head>
-<body class="bg-[#fdf6f3] text-gray-700 min-h-screen p-4 font-sans">
-    <div class="max-w-2xl mx-auto space-y-6">
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-            <div class="flex items-center mb-6">
-                <i class="fa-regular fa-user text-2xl mr-3 text-gray-400"></i>
-                <div>
-                    <h2 class="font-bold text-lg">ข้อมูลผู้เล่น</h2>
-                    <p class="text-sm text-gray-400">กรุณากรอกข้อมูลของคุณเพื่อแลกคูปอง</p>
-                </div>
-            </div>
-            
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 mb-2">UID</label>
-                    <input type="text" id="playerId" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-200 transition-all" placeholder="ใส่ Player ID">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 mb-2">รายการโค้ด (แยกด้วยการขึ้นบรรทัดใหม่)</label>
-                    <textarea id="codes" rows="5" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-200 transition-all font-mono" placeholder="ใส่โค้ดที่นี่..."></textarea>
+<body class="bg-[#0f172a] text-slate-200 min-h-screen p-4 flex items-center justify-center">
+
+    <div class="max-w-xl w-full space-y-6">
+        <div class="bg-[#1e293b] rounded-3xl shadow-2xl border border-slate-700 overflow-hidden">
+            <div class="p-8">
+                <div class="text-center mb-8">
+                    <h1 class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-yellow-600 mb-2">
+                        <i class="fa-solid fa-bolt-lightning mr-2"></i>7K REBIRTH TOOL
+                    </h1>
+                    <p class="text-slate-400 text-sm">ระบบเติมโค้ดอัตโนมัติ ธีม Dark Mode</p>
                 </div>
 
-                <div id="progressContainer" class="hidden">
-                    <div class="flex justify-between text-xs font-bold mb-2 text-orange-500">
-                        <span id="progressText"><i class="fa-solid fa-spinner animate-spin mr-2"></i>กำลังแลก... 0%</span>
+                <div class="space-y-5">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">Player ID (PID)</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-id-card absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"></i>
+                            <input type="text" id="pid" 
+                                class="w-full bg-[#0f172a] border border-slate-700 rounded-2xl px-12 py-4 focus:ring-2 focus:ring-yellow-500 outline-none transition-all placeholder-slate-600" 
+                                placeholder="ใส่ PID ของคุณที่นี่">
+                        </div>
                     </div>
-                    <div class="w-full bg-gray-100 rounded-full h-8 flex items-center p-1 border border-gray-200">
-                        <div id="progressBar" class="bg-green-300 h-6 rounded-full transition-all duration-300" style="width: 0%"></div>
-                    </div>
-                </div>
 
-                <button onclick="runRedeem()" id="btn" class="w-full bg-orange-200 hover:bg-orange-300 text-orange-700 font-bold py-3 rounded-xl transition-all shadow-sm">
-                    เริ่มแลกคูปอง
-                </button>
+                    <div>
+                        <div class="flex justify-between items-end mb-2 ml-1">
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest">Coupon Codes</label>
+                            <button onclick="fetchOfficialCodes()" class="text-xs text-yellow-500 hover:text-yellow-400 font-bold transition-colors">
+                                <i class="fa-solid fa-cloud-arrow-down mr-1"></i> ดึงโค้ดจากระบบ
+                            </button>
+                        </div>
+                        <textarea id="codes" rows="5" 
+                            class="w-full bg-[#0f172a] border border-slate-700 rounded-2xl px-4 py-4 focus:ring-2 focus:ring-yellow-500 outline-none transition-all placeholder-slate-600 font-mono text-sm" 
+                            placeholder="ใส่โค้ดที่นี่ (1 บรรทัดต่อ 1 โค้ด)"></textarea>
+                    </div>
+
+                    <div id="progressBox" class="hidden space-y-2">
+                        <div class="flex justify-between items-center text-xs font-bold px-1">
+                            <span id="statusLabel" class="text-yellow-500 animate-pulse">กำลังดำเนินการ...</span>
+                            <span id="percentText" class="text-slate-400">0%</span>
+                        </div>
+                        <div class="w-full bg-slate-900 rounded-full h-4 p-1 border border-slate-700">
+                            <div id="bar" class="bg-gradient-to-r from-yellow-500 to-amber-600 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <button onclick="runRedeem()" id="btn" 
+                        class="w-full bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-400 hover:to-amber-500 text-slate-900 font-black py-4 rounded-2xl shadow-lg shadow-yellow-900/20 transform hover:scale-[1.01] active:scale-95 transition-all text-lg">
+                        เริ่มทำงานทันที
+                    </button>
+                </div>
             </div>
         </div>
 
-        <div id="resultCard" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 hidden">
-            <h2 class="font-bold text-lg mb-2">ผลการแลกคูปอง</h2>
-            <p id="summary" class="text-sm text-gray-500 mb-6">โค้ดทั้งหมด: 0 | สำเร็จ: 0 | ไม่สำเร็จ: 0</p>
-            
-            <div id="resultsList" class="space-y-3"></div>
+        <div id="resultCard" class="bg-[#1e293b] rounded-3xl shadow-2xl border border-slate-700 p-8 hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="font-bold text-lg text-slate-200">ผลลัพธ์การเติมโค้ด</h2>
+                <span id="summary" class="text-xs bg-slate-900 px-3 py-1.5 rounded-full text-slate-400 border border-slate-700">
+                    สำเร็จ: 0 | ล้มเหลว: 0
+                </span>
+            </div>
+            <div id="resultsList" class="space-y-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                </div>
         </div>
     </div>
 
     <script>
+        // ดึงโค้ดที่เก็บไว้หลังบ้าน
+        async function fetchOfficialCodes() {
+            const btn = event.currentTarget;
+            btn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> กำลังโหลด...';
+            try {
+                const res = await fetch('/api/get-codes');
+                const data = await res.json();
+                document.getElementById('codes').value = data.codes.join('\n');
+            } catch (e) {
+                alert("เกิดข้อผิดพลาดในการดึงโค้ด");
+            } finally {
+                btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-down mr-1"></i> ดึงโค้ดจากระบบ';
+            }
+        }
+
         async function runRedeem() {
-            const playerId = document.getElementById('playerId').value.trim();
+            const pid = document.getElementById('pid').value.trim();
             const codes = document.getElementById('codes').value.split('\n').filter(c => c.trim() !== "");
             const btn = document.getElementById('btn');
-            const progressContainer = document.getElementById('progressContainer');
-            const progressBar = document.getElementById('progressBar');
-            const progressText = document.getElementById('progressText');
+            const progressBox = document.getElementById('progressBox');
+            const bar = document.getElementById('bar');
+            const percentText = document.getElementById('percentText');
             const resultCard = document.getElementById('resultCard');
             const resultsList = document.getElementById('resultsList');
             const summary = document.getElementById('summary');
 
-            if (!playerId || codes.length === 0) return alert("กรุณากรอกข้อมูลให้ครบ");
+            if (!pid || codes.length === 0) return alert("กรุณาระบุ PID และโค้ด");
 
-            btn.classList.add('hidden');
-            progressContainer.classList.remove('hidden');
+            // Setup UI
+            btn.disabled = true;
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
+            progressBox.classList.remove('hidden');
             resultCard.classList.remove('hidden');
             resultsList.innerHTML = "";
             
@@ -75,50 +125,46 @@
 
             for (let i = 0; i < codes.length; i++) {
                 const code = codes[i].trim();
-                const percent = Math.round(((i + 1) / codes.length) * 100);
+                const p = Math.round(((i + 1) / codes.length) * 100);
                 
-                // อัปเดต Progress
-                progressBar.style.width = percent + "%";
-                progressText.innerHTML = `<i class="fa-solid fa-spinner animate-spin mr-2"></i>กำลังแลก... ${percent}%`;
+                // Update Progress
+                bar.style.width = p + "%";
+                percentText.innerText = p + "%";
 
-                // สร้างแถวผลลัพธ์ (Loading)
+                // Create Row UI
                 const row = document.createElement('div');
-                row.className = "p-4 bg-gray-50 border border-gray-100 rounded-2xl flex justify-between items-center transition-all";
-                row.innerHTML = `<div><p class="text-xs font-bold text-gray-400 uppercase">${code}</p><p class="text-sm text-gray-600 mt-1">กำลังดำเนินการ...</p></div>`;
+                row.className = "flex justify-between items-center p-4 bg-slate-900/50 border border-slate-800 rounded-2xl animate-pulse";
+                row.innerHTML = `<span class="text-sm font-mono text-slate-300">${code}</span><span class="text-[10px] text-slate-500 italic">กำลังดำเนินการ...</span>`;
                 resultsList.prepend(row);
 
                 try {
                     const response = await fetch('/api/redeem', {
                         method: 'POST',
                         headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({ playerId, code })
+                        body: JSON.stringify({ pid, code })
                     });
                     const data = await response.json();
                     
-                    const isSuccess = data.resultCode === "SUCCESS";
-                    if (isSuccess) success++; else failed++;
+                    const isOk = data.resultCode === "SUCCESS";
+                    if (isOk) success++; else failed++;
 
-                    row.innerHTML = `
-                        <div>
-                            <p class="text-xs font-bold text-gray-400 uppercase">${code}</p>
-                            <p class="text-sm text-gray-600 mt-1">${data.resultMsg}</p>
-                        </div>
-                        <span class="${isSuccess ? 'bg-green-500' : 'bg-yellow-500'} text-white text-[10px] px-3 py-1 rounded-lg font-bold">
-                            ${isSuccess ? 'สำเร็จ' : 'ใช้แล้ว'}
-                        </span>
-                    `;
+                    // Update Row Result
+                    row.classList.remove('animate-pulse');
+                    row.classList.add('border-l-4', isOk ? 'border-l-emerald-500' : 'border-l-rose-500');
+                    row.lastElementChild.innerText = data.resultMsg || (isOk ? "สำเร็จ" : "ใช้ไปแล้ว");
+                    row.lastElementChild.className = `text-xs font-bold ${isOk ? 'text-emerald-400' : 'text-rose-400'}`;
                 } catch (e) {
                     failed++;
-                    row.innerHTML = `<div><p class="text-xs font-bold text-gray-400 uppercase">${code}</p><p class="text-sm text-red-500 mt-1">Error</p></div>`;
+                    row.lastElementChild.innerText = "Error";
                 }
-
-                summary.innerText = `โค้ดทั้งหมด: ${codes.length} | สำเร็จ: ${success} | ไม่สำเร็จ: ${failed}`;
-                await new Promise(r => setTimeout(r, 500)); // หน่วงเวลาเล็กน้อยเพื่อให้ดูเป็นธรรมชาติ
+                summary.innerText = `สำเร็จ: ${success} | ล้มเหลว: ${failed}`;
             }
 
-            progressText.innerHTML = `<i class="fa-solid fa-check-circle mr-2 text-green-500"></i>ดำเนินการเสร็จสิ้น!`;
-            btn.classList.remove('hidden');
-            btn.innerText = "แลกเสร็จแล้ว (ทำรายการใหม่)";
+            btn.disabled = false;
+            btn.classList.remove('opacity-50', 'cursor-not-allowed');
+            btn.innerText = "ทำงานเสร็จสิ้น";
+            document.getElementById('statusLabel').innerText = "เสร็จสิ้น!";
+            document.getElementById('statusLabel').classList.remove('animate-pulse');
         }
     </script>
 </body>
