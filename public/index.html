@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>7K Rebirth - Auto Redeem Dark</title>
+    <title>7K Rebirth - Auto Reward</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -16,17 +16,15 @@
 <body class="text-slate-300 min-h-screen flex flex-col items-center justify-center p-4">
 
     <div class="max-w-md w-full space-y-4">
-        <div class="dark-card rounded-3xl p-10 shadow-2xl">
-            <h1 class="text-3xl font-black text-center text-orange-500 mb-8 uppercase italic">7K Auto Tool</h1>
+        <div class="dark-card rounded-3xl p-10 shadow-2xl text-center">
+            <h1 class="text-3xl font-black text-orange-500 mb-2 uppercase italic">7K AUTO TOOL</h1>
+            <p class="text-slate-500 text-[10px] mb-8 font-bold uppercase tracking-widest">กรอก PID เพื่อรับรางวัลทั้งหมด</p>
             
-            <div class="space-y-6">
-                <div>
-                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-1 mb-2 block tracking-widest">Player ID (PID)</label>
-                    <input type="text" id="pid" class="w-full bg-[#0b0f1a] border border-slate-700 rounded-2xl px-6 py-4 outline-none focus:ring-2 focus:ring-orange-500 transition-all font-bold text-orange-100" placeholder="ระบุ PID ของคุณ">
-                </div>
-
-                <div id="progressArea" class="hidden space-y-2">
-                    <div class="flex justify-between text-[10px] text-orange-400 font-bold uppercase">
+            <div class="space-y-6 text-left">
+                <input type="text" id="pid" class="w-full bg-[#0b0f1a] border border-slate-700 rounded-2xl px-6 py-4 outline-none focus:ring-2 focus:ring-orange-500 transition-all font-bold text-orange-100" placeholder="ระบุ PID ของคุณ">
+                
+                <div id="progressArea" class="hidden">
+                    <div class="flex justify-between text-[10px] text-orange-400 mb-2 font-bold uppercase">
                         <span id="pStatus">กำลังเตรียมระบบ...</span>
                         <span id="pPercent">0%</span>
                     </div>
@@ -35,7 +33,7 @@
                     </div>
                 </div>
 
-                <button onclick="startAutoRedeem()" id="btn" class="w-full bg-orange-600 hover:bg-orange-500 text-white font-black py-5 rounded-2xl shadow-lg transition-all active:scale-95 text-lg shadow-orange-900/20">
+                <button onclick="startAutoRedeem()" id="btn" class="w-full bg-orange-600 hover:bg-orange-500 text-white font-black py-5 rounded-2xl shadow-lg transition-all active:scale-95 text-lg">
                     รับของรางวัลทั้งหมด
                 </button>
             </div>
@@ -57,6 +55,7 @@
             const pBar = document.getElementById('pBar');
 
             btn.disabled = true;
+            btn.innerText = "กำลังดำเนินการ...";
             resCard.classList.remove('hidden');
             resList.innerHTML = "";
             document.getElementById('progressArea').classList.remove('hidden');
@@ -68,10 +67,9 @@
                 for (let i = 0; i < codes.length; i++) {
                     const code = codes[i];
                     const percent = Math.round(((i + 1) / codes.length) * 100);
-                    
                     pBar.style.width = percent + "%";
                     document.getElementById('pPercent').innerText = percent + "%";
-                    document.getElementById('pStatus').innerText = `กำลังแลก: ${code}`;
+                    document.getElementById('pStatus').innerText = `แลก: ${code}`;
 
                     const response = await fetch('/api/redeem', {
                         method: 'POST',
@@ -80,22 +78,22 @@
                     });
                     const data = await response.json();
                     
-                    // จัดการสถานะตาม errorCode 24004
-                    const isOk = data.resultCode === "SUCCESS";
-                    const isAlreadyUsed = data.errorCode === "24004";
+                    const isOk = data.errorMessage === "SUCCESS";
+                    const isAlreadyUsed = data.errorCode === 24004;
+                    const rewardName = isOk && data.resultData ? data.resultData[0].productName : null;
 
                     const row = document.createElement('div');
                     row.className = `flex justify-between p-3 bg-[#0b0f1a] rounded-xl border-l-4 ${isOk ? 'border-green-500' : 'border-orange-500'}`;
                     
-                    let statusText = isOk ? "สำเร็จ" : (isAlreadyUsed ? "ใช้งานแล้ว" : data.resultMsg);
+                    let statusText = isOk ? `สำเร็จ: ${rewardName}` : (isAlreadyUsed ? "ใช้งานแล้ว" : data.errorMessage);
                     let statusClass = isOk ? 'text-green-500' : 'text-orange-500';
 
-                    row.innerHTML = `<span class="text-xs font-mono font-bold">${code}</span><span class="text-[10px] font-black ${statusClass} uppercase">${statusText}</span>`;
+                    row.innerHTML = `<span class="text-xs font-mono font-bold">${code}</span><span class="text-[9px] font-black ${statusClass} uppercase text-right ml-2">${statusText}</span>`;
                     resList.prepend(row);
                 }
                 btn.innerText = "ดำเนินการเสร็จสิ้น";
             } catch (e) {
-                alert("การเชื่อมต่อขัดข้อง");
+                alert("เกิดข้อผิดพลาดในการเชื่อมต่อ");
                 btn.disabled = false;
             }
         }
