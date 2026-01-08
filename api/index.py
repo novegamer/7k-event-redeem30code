@@ -7,34 +7,31 @@ app = Flask(__name__)
 def redeem():
     data = request.json
     pid = data.get('pid')
-    codes = data.get('codes', [])
+    code = data.get('code')
     
     # URL จากรูป Headers ที่คุณส่งมา
     base_url = "https://coupon.netmarble.com/api/coupon/reward"
     
-    results = []
-    for code in codes:
-        # พารามิเตอร์ตามรูป Payload ที่คุณส่งมา
-        params = {
-            "gameCode": "tskgb",
-            "couponCode": code.strip(),
-            "langCd": "TH_TH",
-            "pid": pid
-        }
-        
-        try:
-            # ใช้ GET ตามที่ระบุใน Request Method ในรูป
-            response = requests.get(base_url, params=params, timeout=10)
-            res_json = response.json()
-            
-            # ดึงข้อความตอบกลับจาก Netmarble
-            msg = res_json.get("resultMsg", "ไม่ทราบสถานะ")
-            results.append({"code": code, "status": msg})
-        except Exception as e:
-            results.append({"code": code, "status": f"Error: {str(e)}"})
-            
-    return jsonify(results)
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Referer": "https://coupon.netmarble.com/tskgb",
+        "Accept": "application/json"
+    }
+    
+    # พารามิเตอร์ตามรูป Payload
+    params = {
+        "gameCode": "tskgb",
+        "couponCode": code.strip(),
+        "langCd": "TH_TH",
+        "pid": pid
+    }
+    
+    try:
+        # ใช้ GET ตามรูป Request Method
+        response = requests.get(base_url, params=params, headers=headers, timeout=10)
+        return jsonify(response.json())
+    except Exception as e:
+        return jsonify({"resultCode": "ERROR", "resultMsg": f"เชื่อมต่อล้มเหลว: {str(e)}"}), 500
 
-# จำเป็นสำหรับการรันบน Vercel
 def handler(event, context):
     return app(event, context)
