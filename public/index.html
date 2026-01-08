@@ -3,168 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>7K Rebirth Coupon Tool - Dark Edition</title>
+    <title>7K Rebirth - Auto Redeem</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap');
-        body { font-family: 'Kanit', sans-serif; }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #1e293b; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
-        @keyframes pulse-gold {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-        .animate-pulse-gold { animation: pulse-gold 2s infinite; }
+        body { font-family: 'Kanit', sans-serif; background-color: #0b0f1a; }
+        .dark-card { background: #161b2a; border: 1px solid #2d3748; }
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #4a5568; border-radius: 10px; }
     </style>
 </head>
-<body class="bg-[#0f172a] text-slate-200 min-h-screen p-4 flex items-center justify-center">
+<body class="text-slate-300 min-h-screen p-4 flex flex-col items-center justify-center">
 
-    <div class="max-w-xl w-full space-y-6">
-        <div class="bg-[#1e293b] rounded-3xl shadow-2xl border border-slate-700 overflow-hidden">
-            <div class="p-8">
-                <div class="text-center mb-8">
-                    <h1 class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-yellow-600 mb-2">
-                        <i class="fa-solid fa-bolt-lightning mr-2"></i>7K REBIRTH TOOL
-                    </h1>
-                    <p class="text-slate-400 text-sm">ระบบเติมโค้ดอัตโนมัติ ธีม Dark Mode</p>
+    <div class="max-w-md w-full space-y-4">
+        <div class="dark-card rounded-3xl shadow-2xl p-10 text-center">
+            <h1 class="text-3xl font-black bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent mb-2">
+                7K AUTO REBORN
+            </h1>
+            <p class="text-slate-500 text-xs mb-8 uppercase tracking-widest font-bold">กรอก PID เพื่อเติมโค้ดทั้งหมด</p>
+
+            <div class="space-y-6">
+                <div class="text-left">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-1 mb-2 block">ระบุ PLAYER ID (PID)</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-user-tag absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"></i>
+                        <input type="text" id="pid" 
+                            class="w-full bg-[#0b0f1a] border border-slate-700 rounded-2xl px-12 py-4 focus:ring-2 focus:ring-orange-500 outline-none transition-all placeholder-slate-700 font-bold tracking-wider" 
+                            placeholder="3FB313035C194C53ACFBE0CDE427FAB9">
+                    </div>
                 </div>
 
-                <div class="space-y-5">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">Player ID (PID)</label>
-                        <div class="relative">
-                            <i class="fa-solid fa-id-card absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"></i>
-                            <input type="text" id="pid" 
-                                class="w-full bg-[#0f172a] border border-slate-700 rounded-2xl px-12 py-4 focus:ring-2 focus:ring-yellow-500 outline-none transition-all placeholder-slate-600" 
-                                placeholder="ใส่ PID ของคุณที่นี่">
-                        </div>
+                <div id="progressArea" class="hidden space-y-2">
+                    <div class="flex justify-between text-[10px] font-bold text-orange-400">
+                        <span id="progressStatus">กำลังเตรียมข้อมูล...</span>
+                        <span id="percentText">0%</span>
                     </div>
-
-                    <div>
-                        <div class="flex justify-between items-end mb-2 ml-1">
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest">Coupon Codes</label>
-                            <button onclick="fetchOfficialCodes()" class="text-xs text-yellow-500 hover:text-yellow-400 font-bold transition-colors">
-                                <i class="fa-solid fa-cloud-arrow-down mr-1"></i> ดึงโค้ดจากระบบ
-                            </button>
-                        </div>
-                        <textarea id="codes" rows="5" 
-                            class="w-full bg-[#0f172a] border border-slate-700 rounded-2xl px-4 py-4 focus:ring-2 focus:ring-yellow-500 outline-none transition-all placeholder-slate-600 font-mono text-sm" 
-                            placeholder="ใส่โค้ดที่นี่ (1 บรรทัดต่อ 1 โค้ด)"></textarea>
+                    <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden border border-slate-700">
+                        <div id="progressBar" class="bg-gradient-to-r from-yellow-400 to-orange-600 h-full transition-all duration-500" style="width: 0%"></div>
                     </div>
-
-                    <div id="progressBox" class="hidden space-y-2">
-                        <div class="flex justify-between items-center text-xs font-bold px-1">
-                            <span id="statusLabel" class="text-yellow-500 animate-pulse">กำลังดำเนินการ...</span>
-                            <span id="percentText" class="text-slate-400">0%</span>
-                        </div>
-                        <div class="w-full bg-slate-900 rounded-full h-4 p-1 border border-slate-700">
-                            <div id="bar" class="bg-gradient-to-r from-yellow-500 to-amber-600 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
-                        </div>
-                    </div>
-
-                    <button onclick="runRedeem()" id="btn" 
-                        class="w-full bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-400 hover:to-amber-500 text-slate-900 font-black py-4 rounded-2xl shadow-lg shadow-yellow-900/20 transform hover:scale-[1.01] active:scale-95 transition-all text-lg">
-                        เริ่มทำงานทันที
-                    </button>
                 </div>
+
+                <button onclick="autoRedeem()" id="btn" 
+                    class="w-full bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 text-white font-black py-5 rounded-2xl shadow-lg transition-all active:scale-95 text-lg">
+                    รับของรางวัลทั้งหมด
+                </button>
             </div>
         </div>
 
-        <div id="resultCard" class="bg-[#1e293b] rounded-3xl shadow-2xl border border-slate-700 p-8 hidden">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="font-bold text-lg text-slate-200">ผลลัพธ์การเติมโค้ด</h2>
-                <span id="summary" class="text-xs bg-slate-900 px-3 py-1.5 rounded-full text-slate-400 border border-slate-700">
-                    สำเร็จ: 0 | ล้มเหลว: 0
-                </span>
+        <div id="resultCard" class="dark-card rounded-3xl shadow-2xl p-6 hidden w-full">
+            <div class="flex justify-between items-center mb-4 px-2">
+                <span class="text-xs font-bold text-slate-400 uppercase">สถานะการแลกรับ</span>
+                <span id="summary" class="text-[10px] font-bold text-orange-500">สำเร็จ: 0 | ล้มเหลว: 0</span>
             </div>
-            <div id="resultsList" class="space-y-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                </div>
+            <div id="list" class="space-y-2 max-h-[300px] overflow-y-auto custom-scrollbar"></div>
         </div>
     </div>
 
     <script>
-        // ดึงโค้ดที่เก็บไว้หลังบ้าน
-        async function fetchOfficialCodes() {
-            const btn = event.currentTarget;
-            btn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> กำลังโหลด...';
-            try {
-                const res = await fetch('/api/get-codes');
-                const data = await res.json();
-                document.getElementById('codes').value = data.codes.join('\n');
-            } catch (e) {
-                alert("เกิดข้อผิดพลาดในการดึงโค้ด");
-            } finally {
-                btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-down mr-1"></i> ดึงโค้ดจากระบบ';
-            }
-        }
+        async function autoRedeem() {
+            const pidInput = document.getElementById('pid').value.trim();
+            if(!pidInput) return alert("กรุณาใส่ Player ID ของคุณ");
 
-        async function runRedeem() {
-            const pid = document.getElementById('pid').value.trim();
-            const codes = document.getElementById('codes').value.split('\n').filter(c => c.trim() !== "");
             const btn = document.getElementById('btn');
-            const progressBox = document.getElementById('progressBox');
-            const bar = document.getElementById('bar');
+            const progressArea = document.getElementById('progressArea');
+            const bar = document.getElementById('progressBar');
             const percentText = document.getElementById('percentText');
+            const list = document.getElementById('list');
             const resultCard = document.getElementById('resultCard');
-            const resultsList = document.getElementById('resultsList');
             const summary = document.getElementById('summary');
 
-            if (!pid || codes.length === 0) return alert("กรุณาระบุ PID และโค้ด");
-
-            // Setup UI
+            // 1. ดึงโค้ดจากหลังบ้านก่อน
             btn.disabled = true;
-            btn.classList.add('opacity-50', 'cursor-not-allowed');
-            progressBox.classList.remove('hidden');
-            resultCard.classList.remove('hidden');
-            resultsList.innerHTML = "";
+            btn.innerText = "กำลังเชื่อมต่อ...";
             
-            let success = 0;
-            let failed = 0;
+            try {
+                const getCodesRes = await fetch('/api/get-codes');
+                const codesData = await getCodesRes.json();
+                const codes = codesData.codes;
 
-            for (let i = 0; i < codes.length; i++) {
-                const code = codes[i].trim();
-                const p = Math.round(((i + 1) / codes.length) * 100);
-                
-                // Update Progress
-                bar.style.width = p + "%";
-                percentText.innerText = p + "%";
+                // 2. เริ่มกระบวนการเติมโค้ด
+                progressArea.classList.remove('hidden');
+                resultCard.classList.remove('hidden');
+                list.innerHTML = "";
+                let success = 0;
+                let failed = 0;
 
-                // Create Row UI
-                const row = document.createElement('div');
-                row.className = "flex justify-between items-center p-4 bg-slate-900/50 border border-slate-800 rounded-2xl animate-pulse";
-                row.innerHTML = `<span class="text-sm font-mono text-slate-300">${code}</span><span class="text-[10px] text-slate-500 italic">กำลังดำเนินการ...</span>`;
-                resultsList.prepend(row);
+                for (let i = 0; i < codes.length; i++) {
+                    const code = codes[i];
+                    const p = Math.round(((i + 1) / codes.length) * 100);
+                    
+                    document.getElementById('progressStatus').innerText = `กำลังแลก: ${code}`;
+                    bar.style.width = p + "%";
+                    percentText.innerText = p + "%";
 
-                try {
-                    const response = await fetch('/api/redeem', {
+                    // แสดงแถวผลลัพธ์ (Loading)
+                    const row = document.createElement('div');
+                    row.className = "flex justify-between items-center p-4 bg-[#0b0f1a] border border-slate-800 rounded-2xl animate-pulse";
+                    row.innerHTML = `<span class="text-xs font-mono font-bold">${code}</span><span class="text-[9px] text-slate-500 uppercase">Processing...</span>`;
+                    list.prepend(row);
+
+                    // ยิง API แลกของ
+                    const res = await fetch('/api/redeem', {
                         method: 'POST',
                         headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({ pid, code })
+                        body: JSON.stringify({ pid: pidInput, code: code })
                     });
-                    const data = await response.json();
+                    const data = await res.json();
                     
                     const isOk = data.resultCode === "SUCCESS";
                     if (isOk) success++; else failed++;
 
-                    // Update Row Result
-                    row.classList.remove('animate-pulse');
-                    row.classList.add('border-l-4', isOk ? 'border-l-emerald-500' : 'border-l-rose-500');
-                    row.lastElementChild.innerText = data.resultMsg || (isOk ? "สำเร็จ" : "ใช้ไปแล้ว");
-                    row.lastElementChild.className = `text-xs font-bold ${isOk ? 'text-emerald-400' : 'text-rose-400'}`;
-                } catch (e) {
-                    failed++;
-                    row.lastElementChild.innerText = "Error";
+                    // อัปเดตสถานะในรายการ
+                    row.className = `flex justify-between items-center p-4 bg-[#0b0f1a] border-l-4 rounded-2xl ${isOk ? 'border-l-emerald-500' : 'border-l-orange-500 animate-none'}`;
+                    row.innerHTML = `
+                        <span class="text-xs font-mono font-bold ${isOk ? 'text-emerald-400' : 'text-slate-400'}">${code}</span>
+                        <span class="text-[9px] font-black ${isOk ? 'text-emerald-500' : 'text-orange-500'} uppercase">${data.resultMsg}</span>
+                    `;
+                    summary.innerText = `สำเร็จ: ${success} | ล้มเหลว: ${failed}`;
                 }
-                summary.innerText = `สำเร็จ: ${success} | ล้มเหลว: ${failed}`;
-            }
 
-            btn.disabled = false;
-            btn.classList.remove('opacity-50', 'cursor-not-allowed');
-            btn.innerText = "ทำงานเสร็จสิ้น";
-            document.getElementById('statusLabel').innerText = "เสร็จสิ้น!";
-            document.getElementById('statusLabel').classList.remove('animate-pulse');
+                btn.innerText = "ดำเนินการเสร็จสิ้น";
+                document.getElementById('progressStatus').innerText = "ทำรายการครบทุกโค้ดแล้ว";
+            } catch (e) {
+                alert("เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์");
+                btn.disabled = false;
+                btn.innerText = "ลองใหม่อีกครั้ง";
+            }
         }
     </script>
 </body>
