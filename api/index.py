@@ -23,7 +23,7 @@ def redeem():
         pid = data.get('pid')
         code = data.get('code')
 
-        # URL และ Headers ตามโครงสร้างที่คุณระบุ
+        # ใช้ข้อมูล GET Request ตามรูป image_4bdf67.png
         url = "https://coupon.netmarble.com/api/coupon/reward"
         params = {
             "gameCode": "tskgb",
@@ -39,11 +39,7 @@ def redeem():
             "Referer": "https://coupon.netmarble.com/tskgb"
         }
 
-        # ส่งแบบ GET ตามภาพ Network
         response = requests.get(url, params=params, headers=headers, timeout=10)
         return jsonify(response.json())
     except Exception as e:
-        return jsonify({"resultCode": "ERROR", "resultMsg": str(e)}), 200
-
-def handler(req, res):
-    return app(req, res)
+        return jsonify({"resultCode": "ERROR", "resultMsg": f"Backend Error: {str(e)}"}), 200
